@@ -1,5 +1,10 @@
 import { HTMLMotionProps, motion } from "framer-motion";
+import { FC, memo } from "react";
 import { FaUser } from "react-icons/fa";
+import { useGetAuthUser } from "../../query/auth/user";
+import { useAuth } from "../../hooks/useAuth";
+import { Link } from "react-router-dom";
+import { FaFilePen } from "react-icons/fa6";
 
 const animtionData: HTMLMotionProps<"div"> = {
     initial: {
@@ -24,19 +29,34 @@ const animtionData: HTMLMotionProps<"div"> = {
     }
 }
 
-const UserMenu = () => {
+type UserMenuProps = {
+    closeMenuFn: ()=>void
+}
+
+const UserMenu: FC<UserMenuProps> = ( { closeMenuFn } ) => {
+    
+    const { data: userData } = useGetAuthUser()
+    const { singOut } = useAuth() 
+
+    const handleClick = () => {
+        singOut()
+    }
+
     return(
         <motion.div {...animtionData} className="header-user-menu">
             <ul>
                 <li>
-                    <a href=""><FaUser className="text-lg"/>profile</a>
+                    <Link onClick={closeMenuFn} to={`/profile/${userData?.id}`}><FaUser className="icon"/>profile</Link>
+                </li>
+                <li>
+                    <Link onClick={closeMenuFn} to={`/new-post`}><FaFilePen className="icon"/>write</Link>
                 </li>
             </ul>
             <ul>
                 <li>
-                    <button type="button" className="flex flex-col gap-1">
-                        <span>logout</span>
-                        <span className="text-sm normal-case">user@mail.com</span>
+                    <button type="button" className="flex flex-col items-start gap-1" onClick={handleClick}>
+                        <span>singout</span>
+                        <span className="text-sm normal-case">{userData?.email}</span>
                     </button>
                 </li>
             </ul>
@@ -45,4 +65,4 @@ const UserMenu = () => {
 }
 
 
-export default UserMenu
+export default memo(UserMenu)

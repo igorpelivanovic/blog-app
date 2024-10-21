@@ -25,6 +25,9 @@ export default {
       animation: {
         'rotate-full-linear': 'rotate-full 1s linear infinite'
       },
+      aspectRatio: {
+        '5/3': '5 / 3',
+      },
     },
   },
   plugins: [

@@ -1,21 +1,21 @@
-import { useState } from "react"
 import AuthBtns from "./AuthBtns"
 import UserPreview from "./UserPreview"
 import { Link } from "react-router-dom"
+import SearchContainer from "./Search/SearchContainer"
+import { useGetAuthUser } from "../../query/auth/user"
+
 
 const Header = () => {
 
-    const [ isLogin, setLogin ] = useState<boolean>(false)
+    const { data: userData } = useGetAuthUser()
 
     return(
         <header>
-            {/* <Link to="/"> */}
+            <Link to="/">
                 <img src="./src/assets/logo.svg" className="h-12" alt="logo_blog_app" />
-{/*             </Link>
- */}            
-                <UserPreview></UserPreview>
-{/*                 <AuthBtns></AuthBtns>
- */}           
+            </Link>
+            <SearchContainer />
+            {userData ? <UserPreview /> : <AuthBtns />}
         </header>
     )
 }

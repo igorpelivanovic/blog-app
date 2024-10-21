@@ -1,0 +1,1 @@
+export type TagResponse = Record<'slug' | 'name' | 'url', string>
