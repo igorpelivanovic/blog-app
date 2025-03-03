@@ -1,5 +1,5 @@
 import { FC } from "react";
-import MenagePostForm, { ManagePostFormSubmitData } from "../components/forms/ManagePostForm";
+import MenagePostForm, { ManageFormT } from "../components/forms/ManagePostForm";
 import { useCreatePost } from "../query/posts/useCreatePost";
 import ManagePostContainer from "./ManagePost";
 
@@ -9,13 +9,15 @@ const CreatePostPage: FC = ()=>{
     
     const mutate = useCreatePost()
 
-    const onSubmitMenageForm = (data: ManagePostFormSubmitData) => {
-        mutate?.mutateAsync(data).then((val)=>console.log(val))
+    const onSubmitMenageForm = async(data: ManageFormT): Promise<void> => {
+        const formatData = (({image, ...other})=>({image: image?.[0], ...other}))(data)
+        await mutate?.mutateAsync(formatData)
+        return
     } 
 
     return(
         <ManagePostContainer titlePage={title}>
-            <MenagePostForm onSubmit={onSubmitMenageForm} />
+            <MenagePostForm  onSubmit={onSubmitMenageForm} />
         </ManagePostContainer>
     )
 }

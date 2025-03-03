@@ -11,7 +11,8 @@ const useUpdateComment = ()=> {
         mutationFn: (commentData: UpdateCommentData) => updateComment(commentData),
         onSuccess: (response)=>{
             queryClient.setQueryData([COMMENTS, POSTS, response.data.postId], ((data: any)=>{
-                data.pages = data.pages.map((page: any)=>({...page, data: { ...page.data, comments: page.data.comments.map((comment:any)=>comment.id === response.data.id ? response.data : comment)}}))
+                console.log(data)
+                data.pages = data.pages.map((page: any)=>({...page, comments: page.comments.map((comment:any)=>comment.id === response.data.id ? response.data : comment)}))
                 return data
             }))
             console.log(response)

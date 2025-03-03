@@ -1,14 +1,11 @@
 import { FC } from "react";
-import { z } from "zod";
-import { CommentsFormSchame } from "../../../validation";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import TextArea from "../../ui/Form/TextArea";
 import { useCreateComment } from "../../../query/comments/useCreateComment";
-import LoadSpinner from "../../Loader";
-import CommentForm, { SubmitCommentFormFn } from "../../forms/commentForm";
+import CommentForm, { SubmitCommentFormFn } from "../../forms/CommentForm";
+import { ALERTS_MESSAGE_COMMENTS } from "../../../constants/alertMessage";
+import { AlertType, useAlertStore } from "../../../state/alertsStore";
+import UserImg from "../../ui/UserImg";
+import { useGetAuthUser } from "../../../query/auth/user";
 
-type CommentFormType = z.infer<typeof CommentsFormSchame>
 
 type NewCommentContainerProps = {
     postId: number
@@ -18,19 +15,28 @@ const NewCommentContainer: FC<NewCommentContainerProps> = ( {postId} ) => {
 
     
     const createComment = useCreateComment()
+    const { data: userData } = useGetAuthUser()
+    const addAlert = useAlertStore((state)=>state.addAlert)
+
 
     const sumbitForm: SubmitCommentFormFn = (data, reset)=>{
         if(createComment?.isLoading) return 
         createComment?.mutate({...data, postId}, {
-            onSuccess: ()=>reset()
+            onSuccess: ()=>{
+                reset();
+                addAlert({text: ALERTS_MESSAGE_COMMENTS.get('add') || '', type: AlertType.success});
+                return
+            }
         })
     }
 
+    if(!userData) return
+
     return (
         <div className="flex gap-4"> 
-            <img src="https://avatar.iran.liara.run/public" className="size-11 rounded-full border-2 border-black" alt="user img" />
+            <UserImg idUser={userData.id} className="size-11 rounded-full border-2 border-stone-700" />
             <div className="flex-1">
-                <CommentForm onSubmit={sumbitForm} className="w-full space-y-3" loadingInProgress={createComment?.isLoading}></CommentForm>
+                <CommentForm onSubmit={sumbitForm} className="w-full space-y-3" loadingInProgress={createComment?.isLoading} />
             </div>
         </div>
     )

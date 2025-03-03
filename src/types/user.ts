@@ -3,9 +3,13 @@ export type UsernameOfUser = {
     username: string
 }
 
+export type UserGenderType = 'female' | 'male';
+
 export interface IUser {
     id: number,
     username: string
 }
 
-export interface IUserUserName extends Pick<IUser, 'id' | 'username'> {}
+export interface EditUserI extends Partial<Omit<IUser, 'id'>>, Partial<Record<'password', string>>{}
+
+export interface IUserUserName extends IUser {}

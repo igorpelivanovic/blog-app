@@ -1,4 +1,4 @@
-type ImgDimension = Record<'width' | 'height', number>
+export type ImgDimension = Record<'width' | 'height', number>
 
 const dimenstionDefault: ImgDimension = {
     width: 200,

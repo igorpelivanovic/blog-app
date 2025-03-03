@@ -1,13 +1,18 @@
 import { FaThumbsUp } from "react-icons/fa"
-import { memo, RefObject, useCallback, useState } from "react"
+import { memo, RefObject, useState } from "react"
 import { IComment } from "../../../types/comment"
 import { useUpdateComment } from "../../../query/comments/useUpdateComment"
 import { useGetAuthUser } from "../../../query/auth/user"
-import { useAuthModalStore } from "../../../state/authPopUpStore"
 import classNames from 'classnames';
 import { Link } from "react-router-dom"
 import { MdDelete, MdEdit } from "react-icons/md";
-import CommentForm, { SubmitCommentFormFn } from "../../forms/commentForm"
+import CommentForm, { SubmitCommentFormFn } from "../../forms/CommentForm"
+import { useLike } from "../../../hooks/useLike"
+import { Stats as StatsContainer } from "../../ui/Post/PostContainer"
+import { useCheckAuth } from "../../../hooks/useCheckAuth"
+import { AlertType, useAlertStore } from "../../../state/alertsStore"
+import { ALERTS_MESSAGE_COMMENTS } from "../../../constants/alertMessage"
+import UserImg from "../../ui/UserImg"
 
 
 type CommentPreviewProps = {
@@ -18,49 +23,36 @@ type CommentPreviewProps = {
 
 const CommentPreview: React.FunctionComponent<CommentPreviewProps> = ( { comment, elRef } ) => {
 
-    const [likes, setLikes] = useState<number>(comment.likes)
-
-    const [isLiked, setIsLiked] = useState<boolean>(false)
-
+    const {toggle, likes, isLiked} = useLike({initValue: comment.likes})
     const [ editComment, setEditComment ] = useState<boolean>(false)
-
     const updateComment = useUpdateComment()
-
+    const addAlert = useAlertStore((state)=>state.addAlert)
     const { data: userData } = useGetAuthUser()
-    const showAuthModal = useAuthModalStore((state)=> state.show)
 
-    const handleLike = useCallback(()=>{
-        if(isLiked){
-            setIsLiked(false)
-            setLikes(val=>--val)}
-        else {
-            setIsLiked(true)
-            setLikes(val=>++val)
-        }
-    }, [isLiked])
-
-    const onClickLike = () => {
-        if(!userData) {
-            showAuthModal()
-            return
-        }
-        handleLike()
-        updateComment.mutate({id: comment.id, likes}, {
+    const toggleLike = () => {
+        const newLikes = toggle()
+        updateComment.mutate({id: comment.id, likes: newLikes}, {
             onError: ()=>{
-                handleLike()
+                toggle()
+            },
+            onSuccess: ()=>{
+                addAlert({text: ALERTS_MESSAGE_COMMENTS.get('update') || '', type: AlertType.success})
             }
         })
         return
     }
 
-    const onSubmitEditForm: SubmitCommentFormFn = (data, reset) => {
+    const onClickLikeBtn = useCheckAuth(toggleLike)
+
+
+    const onSubmitEditForm: SubmitCommentFormFn = (data) => {
         console.log(data)
     }
 
     return (
         <div ref={elRef} className="pb-3 border-b border-zinc-300 flex gap-3 items-start">
             <Link to={`/profile/${comment.user.id}`} className="rounded-full overflow-hidden">
-                <img src="https://avatar.iran.liara.run/public" className="size-11 rounded-full border-2 border-black" alt="user img" />
+                <UserImg idUser={comment.user.id} className="size-11 rounded-full border-2 border-stone-700" />
             </Link>
             <div className="space-y-3 flex-grow">
                 <div className="flex justify-between items-start">
@@ -89,9 +81,8 @@ const CommentPreview: React.FunctionComponent<CommentPreviewProps> = ( { comment
                     <div className="space-y-2">
                         <p>{comment.body}</p>
                         <div>
-                            <button type="button" className={classNames("flex gap-1 items-center text-stone-500 hover:text-stone-900 transition", {'text-green-600': isLiked})} onClick={onClickLike}>
-                                <FaThumbsUp />
-                                {likes}
+                            <button type="button" className={classNames("flex gap-1 items-center transition", isLiked && userData?.id ? 'text-green-600  hover:text-green-700': 'text-stone-500 hover:text-stone-900' )} onClick={onClickLikeBtn}>
+                                <StatsContainer className="flex gap-1 items-center" statsContent={{icon: <FaThumbsUp />, value: likes}} />
                             </button>
                         </div>
                     </div>

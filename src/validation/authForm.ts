@@ -6,7 +6,10 @@ const BaseAuthFormSchema = z.object({
     password: z.string().trim().min(8)
 });
 
-const LogInFormSchema = BaseAuthFormSchema;
+const LoginFormSchema = z.object({
+    username: z.string().trim().min(1, 'username is required'),
+    password: z.string().trim().min(1, 'username is required')
+});
 
 const BaseRegisterFormSchema = BaseAuthFormSchema.extend({
     email: z.string().email('email is invalid'),
@@ -15,4 +18,4 @@ const BaseRegisterFormSchema = BaseAuthFormSchema.extend({
 
 const RegisterFormSchema = BaseRegisterFormSchema.refine((fields)=>fields.password === fields.repeatPassword, {message: 'passwords do not match', path: ['repeatPassword']})
 
-export { LogInFormSchema, RegisterFormSchema, BaseRegisterFormSchema }
+export { LoginFormSchema, RegisterFormSchema, BaseRegisterFormSchema }

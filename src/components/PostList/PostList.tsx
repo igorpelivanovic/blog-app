@@ -1,26 +1,29 @@
-import { FC, memo, RefObject } from "react"
+import { ComponentProps, FC, memo, RefObject } from "react"
 import { twMerge } from "tailwind-merge"
-import PostElement from "./PostElement"
 import { PreviewPost } from "../../types/post"
+import PostCart from "../ui/Post/PostCart"
+import ListContainer from "../ui/List/ListContainer"
 
-export type PostListPropsBasic = {
+export type PostListPropsBasic = Pick<ComponentProps<typeof ListContainer>, 'noData'> & {
     posts: PreviewPost[],
     className?: string
 }
 
 export type PostListProps = {
-    lastElRef?: RefObject<HTMLElement> 
+    lastElRef?: RefObject<HTMLDivElement> 
 } & PostListPropsBasic
 
 
-const defaultPostListClass: string = 'grid gap-x-8 gap-y-10 grid-cols-4'
+const defaultPostListClass: string = 'grid gap-x-8 gap-y-10 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
 
-const PostList: FC<PostListProps> = ({ className, posts, lastElRef })=>{
+const PostList: FC<PostListProps> = ({ className, posts, lastElRef , ...props })=>{
     return(
-        <div className={twMerge(defaultPostListClass, className)}>
-            {posts.map((post, index)=><PostElement elRef={index+1 === posts.length ? lastElRef : undefined}  post={post} key={post.id} />)}
-        </div>
+        <ListContainer {...props} data={posts} className={twMerge(defaultPostListClass, className)} >
+            {
+                (post, index)=><PostCart post={post} ref={index+1 === posts.length ? lastElRef : undefined} />
+            }
+        </ListContainer>
     )
 }
-
 export default memo(PostList)
+

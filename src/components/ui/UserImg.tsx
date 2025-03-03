@@ -1,22 +1,28 @@
-import { ComponentProps, FC } from "react";
+import { ComponentProps, FC, useCallback, useMemo } from "react";
 import { twMerge } from "tailwind-merge";
-
-const imgAtr: ComponentProps<'img'> = {
-    src: "https://avatar.iran.liara.run/public",
-    alt: 'user img'
-}
+import { generateUserImg } from "../../utils/generateUserImg";
+import NoUserImage from "../../assets/images/no-user-img.png"
 
 const defaultStyle: string = "size-28 rounded-full border-4 border-black overflow-hidden";
 
-type UserImgProps = ComponentProps<'div'>
+type UserImgProps = ComponentProps<'div'> & {
+    idUser: number
+}
 
-const UserImg: FC<UserImgProps> = ( { className, ...props}) => {
+const UserImg: FC<UserImgProps> = ( { className, idUser, ...props}) => {
 
     const styleContainer = twMerge(defaultStyle, className)
 
+    const imageSrc = useMemo(()=>generateUserImg({id: idUser}), [idUser])
+
+    const onErrorImg: React.ReactEventHandler<HTMLImageElement> = useCallback(({currentTarget})=>{
+        currentTarget.src = NoUserImage
+        currentTarget.onerror = null
+    }, [])
+
     return (
         <div className={styleContainer} {...props}>
-            <img {...imgAtr} />
+            <img alt="user_img" src={imageSrc} onError={onErrorImg} />
         </div>
     )
 }

@@ -1,8 +1,10 @@
 import { postsAxios } from "../axios/posts";
 import { HttpResponseHeaderForArrayData } from "../types/httpResponse";
 import { AxiosResponse } from "axios";
-import { DeletedPost, NewPost, NewPostResponse, Post, PreviewPost } from "../types/post";
+import { DeletedPost, NewPost, NewPostResponse, Post, PreviewPost, UpdatePost } from "../types/post";
 import { ParamsForApi, paramsForPaginationPosts } from "./params";
+import { authAxios } from "../axios/auth";
+import { handleHttpRequest } from "../utils/handleHttpRequest";
 
 
 export type PostsApiParams = Partial<Record<'select' | 'sortBy' | 'order' | 'q', string> & Record<'limit' | 'skip', number>>
@@ -25,23 +27,37 @@ export interface IPostsResponse {
 
 type FetchPostsParams = Pick<PostsApiParams, 'skip'>
 
-const fetchPosts = ({ skip }: FetchPostsParams): Promise<AxiosResponse<HttpResponseHeaderForArrayData<IPostsResponse>>> => {
+const fetchPosts = async({ skip }: FetchPostsParams): Promise<AxiosResponse<HttpResponseHeaderForArrayData<IPostsResponse>>> => {
   const configApiParams: ParamsForApi = {...paramsForPaginationPosts, skip}
-  return postsAxios.get<HttpResponseHeaderForArrayData<IPostsResponse>>('', {params: configApiParams})
+  return await handleHttpRequest<HttpResponseHeaderForArrayData<IPostsResponse>>({
+    config: {
+      params: configApiParams
+    },
+    axios: postsAxios
+  })
 }
 
 
 type FetchPostsBySearchParams = FetchPostsParams & Required<Pick<PostsApiParams, 'q'>>
 
-const fetchPostsBySearch = (userParams: FetchPostsBySearchParams):  Promise<AxiosResponse<HttpResponseHeaderForArrayData<IPostsResponse>>> => {
+const fetchPostsBySearch = async(userParams: FetchPostsBySearchParams):  Promise<AxiosResponse<HttpResponseHeaderForArrayData<IPostsResponse>>> => {
   const configApiParams: ParamsForApi = {...paramsForPaginationPosts, ...userParams}
-  return postsAxios.get<HttpResponseHeaderForArrayData<IPostsResponse>>('/search', {params: configApiParams})
+  return await handleHttpRequest<HttpResponseHeaderForArrayData<IPostsResponse>>({
+    config: {
+      params: configApiParams
+    },
+    axios: postsAxios
+  })
 }
 
 
-const fetchPostsByUserId = ( userId: number, params?: PostsApiParams): Promise<AxiosResponse<HttpResponseHeaderForArrayData<IPostsResponse>>> => {
-  return postsAxios.get<HttpResponseHeaderForArrayData<IPostsResponse>>(`/user/${userId}`, {
-    params: {...defQueryParamsPreviewPosts, ...params}
+const fetchPostsByUserId = async( userId: number, params?: PostsApiParams): Promise<AxiosResponse<HttpResponseHeaderForArrayData<IPostsResponse>>> => {
+  return await handleHttpRequest<HttpResponseHeaderForArrayData<IPostsResponse>>({
+    config: {
+      params: {...defQueryParamsPreviewPosts, ...params},
+      url: `/user/${userId}`
+    },
+    axios: postsAxios
   })
 }
 
@@ -51,23 +67,56 @@ type FetchPostsByTagParams = {
   params?: FetchPostsParams
 }
 
-const fetchPostsByTag = ({ tagId, params: userParams }: FetchPostsByTagParams): Promise<AxiosResponse<HttpResponseHeaderForArrayData<IPostsResponse>>> => {
+const fetchPostsByTag = async({ tagId, params: userParams }: FetchPostsByTagParams): Promise<AxiosResponse<HttpResponseHeaderForArrayData<IPostsResponse>>> => {
   const configApiparams: ParamsForApi = {...paramsForPaginationPosts, ...userParams}
-  return postsAxios.get<HttpResponseHeaderForArrayData<IPostsResponse>>(`/tag/${tagId}`, {
-    params: configApiparams
+  return await handleHttpRequest<HttpResponseHeaderForArrayData<IPostsResponse>>({
+    config: {
+      params: configApiparams,
+      url: `/tag/${tagId}`
+    },
+    axios: postsAxios
   })
 }
 
 const fetchPostById = async (postId: number): Promise<AxiosResponse<Post>> => {
-  return postsAxios.get<Post>(`/${postId}`)
+  return await handleHttpRequest<Post>({
+    axios: postsAxios,
+    config: {
+      url: `/${postId}`
+    }
+  })
 }
 
-const createPost = (post: NewPost): Promise<AxiosResponse<NewPostResponse>> => {
-  return postsAxios.post<NewPostResponse>('/add', post)
+const createPost = async(post: NewPost): Promise<AxiosResponse<NewPostResponse>> => {
+  return await handleHttpRequest<NewPostResponse>({
+    config: {
+      url: `${import.meta.env.VITE_POST_PREFIX}/add`,
+      data: post,
+      method: 'post'
+    },
+    axios: authAxios
+  })
 }
 
-const deletePost = (id: number): Promise<AxiosResponse<DeletedPost>> => {
-  return postsAxios.delete<DeletedPost>(`/${id}?delay=5000`)
+const deletePost = async(id: number): Promise<AxiosResponse<DeletedPost>> => {
+  return await handleHttpRequest<DeletedPost>({
+    config: {
+      method: 'delete',
+      url: `${import.meta.env.VITE_POST_PREFIX}/${id}`
+    },
+    axios: authAxios
+  })
+}
+
+const updatePost = async({id, ...postData}: UpdatePost): Promise<AxiosResponse<Post>> => {
+  return await handleHttpRequest<Post>({
+    config: {
+      url: `${import.meta.env.VITE_POST_PREFIX}/${id}`,
+      data: postData,
+      method: 'put'
+    },
+    axios: authAxios
+  })
 }
 
 export { 
@@ -77,5 +126,6 @@ export {
   fetchPostsByUserId, 
   fetchPostById,
   createPost,
+  updatePost,
   deletePost
  };

@@ -2,9 +2,9 @@ import { HTMLMotionProps, motion } from "framer-motion";
 import { FC, memo } from "react";
 import { FaUser } from "react-icons/fa";
 import { useGetAuthUser } from "../../query/auth/user";
-import { useAuth } from "../../hooks/useAuth";
 import { Link } from "react-router-dom";
 import { FaFilePen } from "react-icons/fa6";
+import { useLogout } from "../../hooks/useLogout";
 
 const animtionData: HTMLMotionProps<"div"> = {
     initial: {
@@ -36,25 +36,25 @@ type UserMenuProps = {
 const UserMenu: FC<UserMenuProps> = ( { closeMenuFn } ) => {
     
     const { data: userData } = useGetAuthUser()
-    const { singOut } = useAuth() 
+    const logout = useLogout() 
 
     const handleClick = () => {
-        singOut()
+        logout()
     }
 
     return(
         <motion.div {...animtionData} className="header-user-menu">
-            <ul>
+            <ul className="top-menu-container text-text">
                 <li>
-                    <Link onClick={closeMenuFn} to={`/profile/${userData?.id}`}><FaUser className="icon"/>profile</Link>
+                    <Link className="hover:text-stone-600" onClick={closeMenuFn} to={`/profile/${userData?.id}`}><FaUser className="icon "/>profile</Link>
                 </li>
                 <li>
-                    <Link onClick={closeMenuFn} to={`/new-post`}><FaFilePen className="icon"/>write</Link>
+                    <Link className="hover:text-stone-600" onClick={closeMenuFn} to={`/new-post`}><FaFilePen className="icon "/>write</Link>
                 </li>
             </ul>
-            <ul>
+            <ul className="bottom-menu-container">
                 <li>
-                    <button type="button" className="flex flex-col items-start gap-1" onClick={handleClick}>
+                    <button type="button" onClick={handleClick} className="hover:bg-stone-300 hover:bg-opacity-40">
                         <span>singout</span>
                         <span className="text-sm normal-case">{userData?.email}</span>
                     </button>

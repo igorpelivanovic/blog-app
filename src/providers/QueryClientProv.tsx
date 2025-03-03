@@ -9,8 +9,11 @@ const queryClient = new QueryClient({
           refetchIntervalInBackground: true,
           refetchOnWindowFocus: false,
           suspense: true,
-      }
-    }
+        
+      },
+      
+    },
+    
   })
   
 

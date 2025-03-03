@@ -1,24 +1,24 @@
 import React, { useMemo } from "react"
-import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
+import { Tag } from "../ui/Post/PostContainer"
 
-type PostTagsProps = {
+type TagsContainerProps = {
     tags: string[]
     className?: string
     prefix?: string 
 }
 
-const defaultLinkClass: string = 'hover:underline tag-link'
+const defaultLinkClass: string = 'hover:underline inline-block'
 
-const PostTags :React.FunctionComponent<PostTagsProps> = ({ tags, className }) =>{
+const TagsContainer :React.FunctionComponent<TagsContainerProps> = ({ tags, className }) =>{
 
     const styleOfLink: string = useMemo(()=>twMerge(defaultLinkClass, className), [className])
 
     return (
         <>
-            {tags.map(tag=><Link key={tag} to={{ pathname: `/tag/${tag}` }} className={styleOfLink} >{tag}</Link>)}
+            { tags.map(tag=><Tag key={tag} tag={tag} className={styleOfLink} />) }
         </>
     )
 }
 
-export default PostTags
+export default TagsContainer

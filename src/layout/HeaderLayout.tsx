@@ -5,11 +5,12 @@ const HeaderLayout = () => {
     return( 
         <>
             <Header />
-            <main className="container mx-auto space-y-10 px-36 py-5">
+            <main className="container mx-auto space-y-10 px-5 lg:px-36  flex flex-col ">
                 <Outlet />
             </main>
         </>
     )
 }
+
 
 export default HeaderLayout

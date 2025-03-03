@@ -13,6 +13,7 @@ const useGetPostsBySearch = ({ q, key: queryKeyUser }: UseGetPostsBySearchParams
     ...configOptions,
     queryKey: [...[POSTS, q], queryKeyUser].flat().filter(val => val !== undefined),
     queryFn: ( { pageParam: skip } ) => fetchPostsBySearch({q, skip}).then(res=>res.data),
+    enabled: q.length > 0,
     cacheTime: 0,
     staleTime: Infinity,
   })

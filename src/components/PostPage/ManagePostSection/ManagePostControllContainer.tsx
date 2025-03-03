@@ -44,8 +44,8 @@ const ManagePostControllContainer: FC<ManagePostControllContainerProps> = ( {pos
     return (
         <>
             <div className="space-x-5 text-base">
-                <button className="inline-flex items-center bg-slate-400 py-1 px-3 space-x-1 rounded-md" type="button" onClick={showModal}><MdDelete /><span className="capitalize">delete</span></button>
-                <Link className="inline-flex items-center bg-slate-400 py-1 px-3 space-x-1 rounded-md" to={`/edit-post/${postId}`}><MdEdit /><span className="capitalize">edit</span></Link>
+                <button className="inline-flex items-center bg-stone-300 hover:bg-stone-400 transition-colors py-1 px-3 space-x-1 rounded-md" type="button" onClick={showModal}><MdDelete /><span className="capitalize">delete</span></button>
+                <Link className="inline-flex items-center bg-stone-300 hover:bg-stone-400 transition-colors py-1 px-3 space-x-1 rounded-md" to={`/edit-post/${postId}`}><MdEdit /><span className="capitalize">edit</span></Link>
             </div>
             {
                 showModalDelete && 

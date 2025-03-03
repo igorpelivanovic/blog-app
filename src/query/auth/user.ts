@@ -9,11 +9,12 @@ const useGetAuthUser = () => {
         queryFn: fetchAuthUser,
         staleTime: Infinity,
         enabled: AuthTokenService.has(),
-        select: (response)=>response.data,
+        select: (response)=>(({username, email, id})=>({username, email, id}))(response.data),
         retry: 0
     })
 }
 
 
 export { useGetAuthUser }
+
 

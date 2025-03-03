@@ -7,7 +7,7 @@ type FormErrorMsgProps = {
     className?: string
 }
 
-const defaultContainerStyle: string = "absolute top-full mt-1"
+const defaultContainerStyle: string = "absolute text-[14px] top-full mt-1"
 
 const FormErrorMsg: FunctionComponent<FormErrorMsgProps> = ( { msg, className } ) => {
 
@@ -15,7 +15,7 @@ const FormErrorMsg: FunctionComponent<FormErrorMsgProps> = ( { msg, className } 
 
     return(
         <div className={styleContainer}>
-            <p className="inline-flex items-center gap-1 pl-1 ">
+            <p className="inline-flex items-center gap-1 pl-1 text-red-700">
                 <FaCircleExclamation /><span className="first-letter:capitalize">{msg}</span>
             </p>
         </div>

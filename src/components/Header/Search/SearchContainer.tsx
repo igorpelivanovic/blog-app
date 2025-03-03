@@ -8,6 +8,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { useOutsideClick } from "../../../hooks/useOutsideClick"
 import { useSearchValue } from "../../../hooks/useSearchFromValue"
 import SearchForm from "./SearchForm"
+import { SearchPopUpContext, useSearchPopUpContext } from "../../../context/searchPopUpStore"
 
 type FormSearch = z.infer<typeof SearchFormSchema>
 
@@ -46,8 +47,10 @@ const SearchContainer = () => {
 
     const { ref } = useOutsideClick({clickOutSideFn: clickOutSideHandle})
 
+
     return(
-        <div ref={ref} className="w-4/5 max-w-xl relative self-stretch content-center">
+        <SearchPopUpContext.Provider value={{clickOutSide: clickOutSideHandle}}>
+        <div ref={ref} className="flex-shrink-0 basis-full sm:flex-1 sm:w-4/5 sm:max-w-xl relative self-stretch content-center order-3 sm:order-2">
             <SearchForm form={form} onSubmitHandle={clickOutSideHandle}  />
             {renderDropDown &&
                 <DropDownContainer className="top-full left-0 rounded-md w-full translate-x-0 gap-3 py-2">
@@ -55,6 +58,7 @@ const SearchContainer = () => {
                 </DropDownContainer>
             }
         </div>
+        </SearchPopUpContext.Provider>
     )
 }
 

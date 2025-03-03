@@ -1,13 +1,14 @@
 import { FC, PropsWithChildren } from "react";
-import { useTokenExpiredInterception } from "../hooks/useAuthTokenExpiredInterception";
+import { useAuthInterception } from "../interceptors/useAuthInterceptor";
+
 
 const InterceptorProv: FC<PropsWithChildren> = ({children}) => {
 
-    const isInit = useTokenExpiredInterception()
+    const isInitAuthinterceptor = useAuthInterception()
 
     return (
         <>
-            { isInit && children}
+            { isInitAuthinterceptor && children}
         </>
     )
 }

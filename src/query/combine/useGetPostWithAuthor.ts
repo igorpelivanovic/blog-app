@@ -1,19 +1,21 @@
-import { PostWithAuthor } from "../../types/post"
+import { IPostWithAuthor } from "../../types/post"
 import { useGetPostById } from "../posts/useGetPostByIdQuery"
 import { useGetUserById } from "../users/useGetUserById"
 
-const useGetPostWithAuthor = (postId: number): PostWithAuthor | null => {
+const useGetPostWithAuthor = (postId: number): IPostWithAuthor | null => {
     
-    const { data: postData } = useGetPostById(postId)
-    if( !postData ) return null
-    const { data: userData } = useGetUserById(postData.userId)
+    const { data: postData, isError: isPostError } = useGetPostById(postId)
 
-    if(!userData) return null
-    
+    if( !postData || isPostError ) return null
+
+    const { data: userData, isError: isUserError } = useGetUserById(postData.userId)
+
+    if(!userData || isUserError) return null
+
     return {
         ...postData,
         userId: userData.id,
-        username: userData.username
+        username: userData.username,
     }
 
 }

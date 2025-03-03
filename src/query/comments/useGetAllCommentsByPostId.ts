@@ -5,20 +5,23 @@ import { IComment } from "../../types/comment"
 import { HttpResponseHeaderForArrayData } from "../../types/httpResponse"
 
 
-type UseCommentsByPostId = (postId: number) => UseInfiniteQueryResult<IComment, Error>
+type UseCommentsByPostId = (postId: number) => UseInfiniteQueryResult<Test, Error>
+
+type Test = {
+    comments: IComment[]
+    total: number
+}
 
 const useCommentsByPostId: UseCommentsByPostId = (postId: number) => {
-    return useInfiniteQuery<HttpResponseHeaderForArrayData<IResponseData>, Error, IComment, [string, string, number]>({
+    return useInfiniteQuery<HttpResponseHeaderForArrayData<IResponseData>, Error, Test, [string, string, number]>({
         queryKey: [COMMENTS, POSTS, postId],
         queryFn: (({ pageParam })=>getCommentsByPostId(postId, pageParam).then(res=>res.data)),
         select: (response=>(
             {...response, 
-                pages: response.pages.flatMap(page=>page.comments)}
+                pages: response.pages.flatMap(page=>((({ comments, total })=>({comments, total}))(page)))}
         )),
         getNextPageParam: (response)=>{
             const currentLenghtData: number = response.skip+response.comments.length 
-            console.log(response.total > currentLenghtData)
-
             return response.total > currentLenghtData ? currentLenghtData : undefined
         },
     })

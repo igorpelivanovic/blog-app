@@ -2,13 +2,12 @@ import { FunctionComponent, memo } from "react";
 import { useGetPostsByUserId } from "../../../query/posts/useGetPostsByUserIdPagination";
 import RecomendedPostSection, { RecomendedPostSectionLinkProps } from "./RecomendedSection";
 import { useParams } from "react-router-dom";
-import { useGetPostById } from "../../../query/posts/useGetPostByIdQuery";
 import { useGetPostWithAuthor } from "../../../query/combine/useGetPostWithAuthor";
 
-type MoreFromUserPostsSectionProps = {
+/* type MoreFromUserPostsSectionProps = {
     userId: number
     username: string
-}
+} */
 
 const numberOfPostsForList: number = 4
 

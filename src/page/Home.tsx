@@ -1,11 +1,11 @@
 import { FunctionComponent, memo } from "react"
-import FeaturedPost from "../components/HomePage/FeaturedPost"
 import TagsBox from "../components/HomePage/Tags/TagsBox"
 import PageSection from "../components/PageSection"
 import LoadSpinner from "../components/Loader"
 import { useGetPosts } from "../query/posts/useGetPostsQuery"
 import InfinityListContainer from "../components/InfinityListContainer"
 import PostList from "../components/PostList/PostList"
+import FeaturedPostCart from "../components/ui/Post/FeaturedPostCart"
 
 const HomePage: FunctionComponent = () => {
     
@@ -18,11 +18,11 @@ const HomePage: FunctionComponent = () => {
 
     return(
         <>
-            <nav className="flex justify-between relative h-10 items-center">
-                <TagsBox></TagsBox>
+            <nav className="relative">
+                <TagsBox />
             </nav>
             <PageSection sectionTitle='featured'>
-                <FeaturedPost post={featuredPost} />
+                <FeaturedPostCart post={featuredPost} />
             </PageSection>
             <PageSection sectionTitle='latests'>
                 <InfinityListContainer fetchNextPage={fetchNextPage} isLoading={isFetchingNextPage} hasMore={hasNextPage} loader={<LoadSpinner/>}>

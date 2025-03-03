@@ -1,91 +1,122 @@
-import { FC, useId, useState } from "react";
+import { FC, useState } from "react";
 import { IoSettings } from "react-icons/io5";
 import Modal from "../Modal/Modal";
-import Input from "../ui/Form/Input";
-import { z } from "zod";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { isDirty, z } from "zod";
 import CheckBox from "../ui/Form/CheckBox";
-import ImageInput from "../ui/Form/ImageInput";
+import FormContainer from "../ui/Form/FormContainer";
+import CustomImageInput from "../ui/Form/CustomImageInput";
+import CustomInput from "../ui/Form/CustomInput";
+import ActionContainer from "../ui/Form/ActionContainer";
+import { EditUserFormSchema } from "../../validation";
+import { useGetAuthUser } from "../../query/auth/user";
+import { AlertType, useAlertStore } from "../../state/alertsStore";
+import classNames from "classnames";
+import { FaRotate, FaTrashCan } from "react-icons/fa6";
+import { FaCamera } from "react-icons/fa";
+import { useEditAuthUser } from "../../query/users/useEditUser";
+import LoadingIndicatorAuthForm from "../Auth/LoadingIndicatorAuthForm";
+import { ALERTS_MESSAGE_COMMENTS } from "../../constants/alertMessage";
 
-const MAX_FILE_SIZE = 5000000
-const ACCEPTED_IMAGE_TYPES: string[] = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp',]
 
-const InputFileLabel: string = "Recommended: Square JPEG, JPG, PNG, WEBP, or GIF, max size 5MB"
-
-const formSchema = z.object({
-    image: z.custom<File[]>().refine(files=>ACCEPTED_IMAGE_TYPES.includes(files[0].type), {message: 'prva'}).refine(files=>files[0].size <= MAX_FILE_SIZE).nullable(),
-    username: z.string(),
-    updatePassword: z.boolean(),
-    password: z.string(),
-    repeatPassword: z.string()
-}).refine(obj=>obj.password === obj.repeatPassword, {
-    message: "error",
-    path: ['repeatPassword']
-})
-
-type FormT = z.infer<typeof formSchema>
+/* const InputFileLabel: string = "Recommended: Square JPEG, JPG, PNG, WEBP, or GIF, max size 5MB"
+ */
+type FormT = z.infer<typeof EditUserFormSchema>
 
 const EditUser: FC = () => {
 
+    const addAlert = useAlertStore(state=>state.addAlert)
+
+    const mutatuion = useEditAuthUser()
+
     const [renderModal, setRenderModal] = useState<boolean>(false)
 
-    const { control, handleSubmit, resetField, watch}  = useForm<FormT>({
-        defaultValues: {
-            image: null,
-            username: '',
-            password: '',
-            repeatPassword: '',
-            updatePassword: true
-        },
-        resolver: zodResolver(formSchema),
-    })
+    const { data } = useGetAuthUser()
 
-    const formId = useId()
+    if(!data || !mutatuion) return
 
-    const isUpdatePassword: boolean = watch('updatePassword')
+    const onSubmitForm = async(data: FormT) => {
+        try{
+            await mutatuion.mutateAsync(data)
+            addAlert({text: ALERTS_MESSAGE_COMMENTS.get('update') || '', type: AlertType.success})
+            setRenderModal(false)
+        }catch(e){
 
-    const onSubmitForm: SubmitHandler<FormT> = (data) => {
-        console.log(data)
+        }
     }
+
 
     return (
         <div className="flex">
             <button type="button" className="text-xl" onClick={()=>setRenderModal(true)}>
-                <IoSettings />
+                <IoSettings className={classNames()} />
             </button>
             {renderModal && (
-                <Modal closeButton={true} clickOutSideClose={true} closeModalFn={()=>setRenderModal(false)} >
-                    <div className="flex gap-8 flex-col p-1 pb-3 h-full">
+                <Modal className="shadow-2xl py-2 overflow-hidden" closeButton={true} clickOutSideClose={true} closeModalFn={()=>setRenderModal(false)} >
+                    <div className="flex gap-8 flex-col p-1 pb-2 h-full">
                         <div>
                             <p className="text-center text-2xl font-semibold capitalize">edit user</p>
                         </div>
-                        <div className="flex-grow flexflex-col overflow-hidden">
-                            <form onSubmit={handleSubmit(onSubmitForm)} className="h-full gap-8 flex flex-col">
+                        <div className="flex-grow flexflex-col overflow-hidden"> 
+                            <FormContainer<FormT>  onSubmit={onSubmitForm} className="h-full gap-8 flex flex-col" formParams={{ defaultValues: {username: data.username, isUpdatePassword: false, image: new DataTransfer().files} ,validation: EditUserFormSchema, shouldUnregister: true }} >
                                 <div className="flex flex-col flex-grow overflow-y-auto">
-                                    <ImageInput label={InputFileLabel} imgSrc="https://avatar.iran.liara.run/public" resetField={resetField} accept={ACCEPTED_IMAGE_TYPES.join(', ')} control={control} formId={formId} name="image" />
-                                    <Input label={'username'} control={control} formId={formId} resetField={resetField} name={"username"} />
-                                    <CheckBox<FormT> label="edit password" control={control} formId={formId} name="updatePassword" />
-                                    {isUpdatePassword && (
-                                        <>
-                                            <Input label={'password'} control={control} formId={formId} resetField={resetField} name={"password"} />
-                                            <Input label={'password'} control={control} formId={formId} resetField={resetField} name={"password"} />
-                                            <Input label={'password'} control={control} formId={formId} resetField={resetField} name={"password"} />
-                                            <Input label={'repeat password'} control={control} formId={formId} resetField={resetField} name={"repeatPassword"} />
-                                        </>
-                                    )}
+                                    <div className="w-fit mx-auto">
+                                        <CustomImageInput<FormT> name={'image'} >
+                                            {
+                                                ({img, add, remove})=>(
+                                                    <div className="w-24 aspect-square border-4 border-stone-600 rounded-full overflow-hidden relative group">
+                                                        {img && <img src={img} className="absolute top-0 left-0 w-full h-full object-contain bg-stone-400 " />}
+                                                        <div className={classNames("flex items-stretch h-full text-xl bg-stone-300 bg-opacity-50 z-10 relative", {"opacity-0 group-hover:opacity-100 transition-opacity": img})}>
+                                                            <button type="button" className="flex-1 flex items-center justify-center hover:bg-stone-500 hover:bg-opacity-50 transition-colors" onClick={add}>
+                                                                {img ? <FaRotate /> : <FaCamera />} 
+                                                            </button>
+                                                            {
+                                                                img && 
+                                                                <button type="button" className="flex-1 flex items-center justify-center hover:bg-stone-500 hover:bg-opacity-50 transition-colors" onClick={remove}>
+                                                                    <FaTrashCan />
+                                                                </button>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                )
+                                            }
+                                        </CustomImageInput>
+                                    </div>
+                                    <CustomInput<FormT> name="username" label="username" />
+                                    <CheckBox<FormT> label="change password" name="isUpdatePassword" />
+                                    <ActionContainer>
+                                            {
+                                                ({watch})=>(
+                                                    <>
+                                                        {watch('isUpdatePassword') && (
+                                                            <>
+                                                                <CustomInput<FormT> type="password" name={'password'} label="password" />
+                                                                <CustomInput<FormT> type="password" name={'repeatPassword'} label="repeat password" />
+                                                            </>
+                                                        )}
+                                                    </>
+                                                )
+                                            }
+                                    </ActionContainer>
                                 </div>
-                                <div className="flex gap-3 justify-between">
-                                    <button type="reset" className="ml-auto mr-0 capitalize">
+                                <div className="flex gap-3 justify-between mx-auto">
+                                    <button type="reset" className="ml-auto mr-0 capitalize  px-4 py-1 rounded">
                                         cancel
                                     </button>
-                                    <button type="submit" className="capitalize">
-                                        save change
-                                    </button>
+                                    <ActionContainer>
+                                            {
+                                                ({formState: { isValid, dirtyFields } })=>(
+                                                
+                                                    <button disabled={ Object.keys(dirtyFields).length  === 0 || !isValid}  type="submit" className="capitalize px-4 py-1 rounded bg-stone-300  disabled:opacity-70">
+                                                        save change
+                                                    </button>
+                                                )
+                                            }
+                                    </ActionContainer>
                                 </div>
-                            </form>
+                            </FormContainer>
                         </div>
                     </div>
+                    {mutatuion.isLoading && <LoadingIndicatorAuthForm />}
                 </Modal>
             )}
             

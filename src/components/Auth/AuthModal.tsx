@@ -1,21 +1,21 @@
-import { ComponentProps, FC } from "react";
-import SingInContainer from "./singin/SingInContainer";
+import { FC } from "react";
 import Modal from "../Modal/Modal";
 import { useAuthModalStore } from "../../state/authPopUpStore";
-import SingUpContainer from "./singup/SingUpContainer";
-
-type Prop = ComponentProps<typeof Modal>
+import LogInFormContainer from "./LogInFormContainer";
+import RegisterFormContainer from "./RegisterFormContainer";
+import { AnimatePresence } from "framer-motion";
+import { ErrorBoundary } from "react-error-boundary";
+import { QueryErrorResetBoundary } from "react-query";
 
 const AuthModal: FC = () => {
 
-    const { isLogin, hasCloseBtn, hide } = useAuthModalStore(state=>((({hasCloseBtn, isLogin, hide})=>({hasCloseBtn, isLogin, hide}))(state)))
-
+    const { isLogin, hasCloseBtn, clickOutSide, hide } = useAuthModalStore(state=>((({hasCloseBtn, isLogin, hide, clickOutSide})=>({hasCloseBtn, isLogin, hide, clickOutSide}))(state)))
+    
     return (
-        <Modal clickOutSideClose={hasCloseBtn} closeModalFn={hide} closeButton={hasCloseBtn}>
-            <div className="space-y-10 w-3/4 mx-auto">
-                {isLogin ? <SingInContainer />:
-                <SingUpContainer />}
-            </div>
+        <Modal clickOutSideClose={hasCloseBtn} closeModalFn={hide} disableOutSide={!clickOutSide} className="shadow-lg shadow-black auth-modal p-0" closeButton={hasCloseBtn}>
+            <AnimatePresence initial={false} >
+                {isLogin ? <LogInFormContainer key='login' /> : < RegisterFormContainer key='register' />}
+            </AnimatePresence>
         </Modal>
     )
 }

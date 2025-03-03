@@ -28,6 +28,16 @@ export default {
       aspectRatio: {
         '5/3': '5 / 3',
       },
+      boxShadow: {
+      },
+      colors: {
+        text: '#060f09',
+        background: '#f0faf3',
+        primary: '#48cb69',
+        secondary: '#92e3a6',
+        accent: '#68df85',
+        'secondary-transparent-20': "rgba(146, 227, 166, .05)"
+      }
     },
   },
   plugins: [
@@ -35,3 +45,4 @@ export default {
   ],
 }
 
+/* --tw-shadow-colored: 0 0px 15px -3px var(--tw-shadow-color), 0 0px 6px -4px var(--tw-shadow-color) */

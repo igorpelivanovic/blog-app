@@ -1,29 +1,18 @@
-import { useEffect } from "react"
-import { useInView } from "../../hooks/useInView"
+import { ComponentProps } from "react"
 import PostList, { PostListPropsBasic } from "./PostList"
+import InfinityListContainer from "../InfinityListContainer"
 
-type PostInifinityListProps = {
-    fetchNextPage: Function
-    hasMore: boolean | undefined
-    isLoading: boolean
-    loader: React.ReactNode
-} & PostListPropsBasic
+type PostInifinityListProps = Omit<ComponentProps<typeof InfinityListContainer>, 'children'> & PostListPropsBasic
 
 
-const PostInifinityList: React.FunctionComponent<PostInifinityListProps> = ( { fetchNextPage, hasMore, posts, isLoading, loader } ) =>{
+const PostInifinityList: React.FunctionComponent<PostInifinityListProps> = ( { posts, className, noData, ...props } ) =>{
 
-    const { elRef: lastElRef, isVisible } = useInView<HTMLElement>()
-
-    useEffect(()=>{
-        if(isVisible && hasMore && !isLoading){
-            fetchNextPage()
-        }
-    }, [isVisible])
-
-    return <>
-        <PostList posts={posts} lastElRef={lastElRef} />
-        {isLoading && loader}
-    </>
+    return <InfinityListContainer {...props} >
+        {
+            (lastElRef)=><PostList className={className} noData={noData} posts={posts} lastElRef={lastElRef} />
+        } 
+    </InfinityListContainer>
 }
 
 export default PostInifinityList
+

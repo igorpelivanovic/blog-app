@@ -4,7 +4,8 @@ import { useParams } from "react-router-dom";
 import { useGetPostsByUserId } from "../../query/posts/useGetPostsByUserIdPagination";
 import LoadSpinner from "../Loader";
 import SortForm, { FormT } from "../ui/SortForm";
-
+import { FaRegFileExcel } from "react-icons/fa";
+import { useGetUserById } from "../../query/users/useGetUserById";
 
 const UserPostsSection: FC = () => {
 
@@ -23,7 +24,7 @@ const UserPostsSection: FC = () => {
                     <p className="text-3xl font-semibold capitalize">posts</p>
                 </div>
                 {
-                    data?.pages.length && (
+                    data?.pages !== undefined && data?.pages.length > 1 && (
                         <div>
                             <SortForm defaultValue={filterParams} onChange={onChangeFilterParam} />
                         </div>
@@ -32,10 +33,25 @@ const UserPostsSection: FC = () => {
             </div>
             {isFetching && <LoadSpinner />}
             {data?.pages && (
-                <PostInifinityList fetchNextPage={fetchNextPage} hasMore={hasNextPage} isLoading={isLoading} loader={<LoadSpinner />} posts={data.pages} />
+                <PostInifinityList fetchNextPage={fetchNextPage} noData={<NoResults />} hasMore={hasNextPage} isLoading={isLoading} loader={<LoadSpinner />} posts={data.pages} />
             )}
         </section>
     )   
+}
+
+const NoResults: FC = () => {
+
+    const { userId } = useParams<string>()
+    const { data: user } = useGetUserById(Number(userId))
+
+    if(!user) return
+
+    return (
+        <div className="flex flex-col items-center gap-5 p-20">
+            <FaRegFileExcel  className="text-6xl" />
+            <p className="text-center text-xl"><span className="capitalize">{user?.username}</span> don't have posts</p>
+        </div>
+    )
 }
 
 export default UserPostsSection

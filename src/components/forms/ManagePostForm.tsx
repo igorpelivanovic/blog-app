@@ -1,96 +1,137 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { FC, useId, useMemo } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { FC, useMemo } from "react";
+import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-import Input from "../ui/Form/Input";
-import TextArea from "../ui/Form/TextArea";
-import MultiSelectInput from "../ui/Form/MultiSelectInput";
 import { useGetTags } from "../../query/tags/useAllTagsQuery";
-import ImageInput from "../ui/Form/ImageInput";
+import FormContainer from "../ui/Form/FormContainer";
+import CustomMultiSelect from "../ui/Form/CustomMultiSelect";
+import CustomInput from "../ui/Form/CustomInput";
+import CustomTextArea from "../ui/Form/CustomTextArea";
+import CustomImageInput from "../ui/Form/CustomImageInput";
+import ActionContainer from "../ui/Form/ActionContainer";
+import { MenagePostFormSchema } from "../../validation";
 import { filterChangeFormFields } from "../../utils/filterChangeFormFields";
-const ACCEPTED_IMAGE_TYPES: string[] = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp',]
-const MAX_FILE_SIZE = 5000000
+import { FaCamera } from "react-icons/fa";
+import { FaRotate, FaTrashCan } from "react-icons/fa6";
+import classNames from "classnames";
 
-const ManagePostFormSchema = z.object({
-    title: z.string(),
-    body: z.string(),
-    image: z.custom<File[]>().refine(file=> file?.length > 0 ? ACCEPTED_IMAGE_TYPES.includes(file[0].type) : true, {message: 'prva'}).refine(file=>file?.length ? file[0].size <= MAX_FILE_SIZE : true),
-    tags: z.array(z.object({
-        tag: z.string()
-    }))
-})  
 
-export type ManageForm = z.infer<typeof ManagePostFormSchema>
+export type ManageFormT = z.infer<typeof MenagePostFormSchema>
 
-export type DefaultValueFormProps = Omit<ManageForm, 'image' | 'tags'> & {
-    image?: string
-    tags: string[]
+const defaultValues: ManageFormT = {
+    body: '',
+    tags: [],
+    image: new DataTransfer().files,
+    title: ''
+}
+
+export type DefaultValueFormProps = Omit<ManageFormT, 'image'> & {
+    image?: string | null
 }
 
 export type ManagePostFormSubmitData = Omit<DefaultValueFormProps, 'image'> & {
     image: File | undefined
 }
 
+type ManagePostFormBaseProps = {
+    defaultValue?: DefaultValueFormProps;
+    submitBtnLabel?: string;
+};
 
-
-type ManagePostFormProps = {
-    defaultValue?: DefaultValueFormProps
-    onlyDirtySubmit?: boolean
-    onSubmit: (data: ManagePostFormSubmitData)=>void
+type DirtyFieldsSubmit  ={
+    onlyDirtySubmit: true
+    onSubmit: (data: Partial<ManageFormT>) => void
+}
+type AllFieldsSubmit  ={
+    onlyDirtySubmit?: false
+    onSubmit: (data: ManageFormT) => void
 }
 
-const ManagePostForm: FC<ManagePostFormProps> = ( { defaultValue, onSubmit, onlyDirtySubmit = false }) => {
+
+
+type ManagePostFormProps = ManagePostFormBaseProps & ( | AllFieldsSubmit | DirtyFieldsSubmit)
+
+
+const ManagePostForm: FC<ManagePostFormProps> = ( { defaultValue, onSubmit, onlyDirtySubmit, submitBtnLabel = 'create' }) => {
 
     const { data: tags} = useGetTags()
 
     if(!tags) return
 
-    const formatOptionsTags: ManageForm['tags'] = useMemo(()=>tags.map(el=>({tag: el})), [JSON.stringify(tags)])
 
-    const formatDefaultTags: ManageForm['tags'] = useMemo(()=>formatOptionsTags.filter(opt=>defaultValue?.tags.includes(opt.tag)), [JSON.stringify([...formatOptionsTags, defaultValue?.tags])])
+    const formatTags = useMemo(()=>tags.sort(), tags)
 
-    const { handleSubmit, control, resetField, formState: {errors, dirtyFields} } = useForm<ManageForm>({
-        defaultValues: {...defaultValue, image: undefined, tags: formatDefaultTags},
-        resolver: zodResolver(ManagePostFormSchema)
-    })
-
-    const formId = useId();
-
-    const onSubmitForm: SubmitHandler<ManageForm> = (data) => {
-        const filterData = onlyDirtySubmit ? filterChangeFormFields(data, dirtyFields) : data
-        const formatData = {...filterData, tags: filterData.tags?.map(el=>el.tag) || [], image: data.image?.[0]}
-        onSubmit(formatData)
+    const onSub = (data: ManageFormT , formInstance: UseFormReturn<ManageFormT>)=>{
+        if (onlyDirtySubmit) {
+            onSubmit(filterChangeFormFields(data, formInstance.formState.dirtyFields));
+        } else {
+        onSubmit(data);
+        }       
+        return
     }
 
- 
+    const {image, defValue} = useMemo(()=>{
+        if(defaultValue){
+            return (({image, ...other})=>({image: image ?? undefined, defValue: other}))(defaultValue)
+        }
+        return { image: undefined, defValue: {} }
+    }, [JSON.stringify(defaultValue)])
+
+
     return (
-        <div>
-            {JSON.stringify(errors)}
-            <form onSubmit={handleSubmit(onSubmitForm)} className="flex w-full gap-5" >
-                <div className="basis-8/12 flex-shrink-0">
-                    <Input control={control} name="title" formId={formId} resetField={resetField} />
-                    <TextArea<ManageForm> control={control} name="body" formId={formId} />
+            <FormContainer<ManageFormT> className="flex flex-1 flex-col lg:flex-row w-full gap-9 mb-10" onSubmit={onSub} formParams={{validation: MenagePostFormSchema, defaultValues: {...defaultValues, ...defValue}}} > 
+                <div className="basis-8/12 flex-shrink-0 flex flex-col">
+                    <CustomInput name="title" label="title" />
+                    <CustomTextArea name="body" label="description" />
                 </div>
-                <div className="flex-grow ">
+                <div className="flex-grow flex flex-col ">
                     <div>
-                        <ImageInput imgSrc={defaultValue?.image} control={control} className="flex-col" name="image" formId={formId} resetField={resetField} >
-                            {(imgUrl)=>(
-                                <div className="w-full aspect-5/3">
-                                    <img src={imgUrl} className="object-cover w-full h-full" />
-                                </div>
-                            )}
-                        </ImageInput>
-                        <MultiSelectInput<ManageForm> control={control} name="tags" options={formatOptionsTags} searchField={'tag'} />
-                    </div>
-                    <div>
-                        <button type="submit">
-                            create
-                        </button>
+                        <CustomImageInput initImg={image} accept="" name="image" >
+                            {
+                                ({img, add, remove, error})=>(
+                                    <>
+                                        <div className={classNames("w-full aspect-5/3  relative group  border rounded-md overflow-hidden", error ? ' border-red-600' : 'bg border-black' )}>
+                                            {img && <img src={img} className={classNames("absolute top-0 left-0 w-full h-full object-contain  -z-10", error ? 'bg-red-100' : 'bg-stone-400')} />}
+                                            <div className={classNames("flex items-stretch h-full text-2xl bg-stone-300 bg-opacity-50 ", {"opacity-0 group-hover:opacity-100 transition-opacity": img})}>
+                                                <button type="button" className="flex-1 flex items-center justify-center hover:bg-stone-500 hover:bg-opacity-50 transition-colors" onClick={add}>
+                                                    {img ? <FaRotate /> : <FaCamera />} 
+                                                </button>
+                                                {
+                                                    img && 
+                                                    <button type="button" className="flex-1 flex items-center justify-center hover:bg-stone-500 hover:bg-opacity-50 transition-colors" onClick={remove}>
+                                                        <FaTrashCan />
+                                                    </button>
+                                                }
+                                                
+                                            </div>
+                                        </div>
+                                    </>
+                                    
+                                )
+                            }
+                        </CustomImageInput>
+                        <CustomMultiSelect<ManageFormT>  label={'tags'} name={'tags'} options={formatTags} />
+                        </div>
+                    <div className="mt-auto mb-0 sm:justify-end justify-center space-x-3 flex items-end fixed lg:static bottom-0 left-0 w-full lg:bg-transparent lg:border-0 bg-white py-3 border-t px-5 lg:p-0">
+                        <ActionContainer>
+                            {
+                                ({reset, formState: { dirtyFields, isValid }})=>(
+                                    <>
+                                        <button type="button" onClick={()=>reset()} className=" text-base py-1 px-3 capitalize rounded-lg">
+                                            reset
+                                        </button>
+                                        <button type="submit" disabled={ Object.keys(dirtyFields).length  === 0 || !isValid} className="bg-stone-400 not:disabeld:hover:bg-stone-500 transition-colors text-base lg:text-xl py-2 px-5 capitalize rounded-lg disabled:opacity-70">
+                                            { submitBtnLabel }
+                                        </button>
+                                    </>
+                                )
+                            }
+                        </ActionContainer>
                     </div>
                 </div>
-            </form>
-        </div>
+            </FormContainer>
     )
 }
 
 export default ManagePostForm
+
+

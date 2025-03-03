@@ -6,7 +6,7 @@ const useGetTags = ()=>{
     return useQuery({
         queryKey: [TAGS],
         queryFn: fetchTags,
-        staleTime: 24*60*60*1000,
+        staleTime: Infinity,
         select: (data)=> data.data.map(el=>el.slug)})
 }
 

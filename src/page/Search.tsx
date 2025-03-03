@@ -1,10 +1,12 @@
-import { memo, useMemo } from "react"
+import { FC, memo, useMemo } from "react"
 import PageSection from "../components/PageSection"
 import LoadSpinner from "../components/Loader"
 import PostInifinityList from "../components/PostList/PostInfinityList"
 import { useSearchValue } from "../hooks/useSearchFromValue"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 import { useGetPostsBySearch } from "../query/posts/useSearchQuery"
+import { LuSearchX } from "react-icons/lu";
+
 
 const sectionTitlePrefix: string = 'results for search'
 
@@ -12,25 +14,26 @@ const SearchPage = () => {
     
     const searchParam = useSearchValue()
     const { key } = useLocation()
-    const navigate = useNavigate()
-
-    if(searchParam === null || searchParam === undefined){
-        navigate("")
-        return
-    } 
 
     const { data: posts, fetchNextPage, isFetchingNextPage, hasNextPage } = useGetPostsBySearch({q: searchParam, key})
 
     const sectionTitle = useMemo(()=>`${sectionTitlePrefix}: "${searchParam}"`, [searchParam])
 
-    if(!posts?.pages) return null
-
     return(
         <> 
             <PageSection sectionTitle={sectionTitle}>
-                <PostInifinityList fetchNextPage={fetchNextPage} isLoading={isFetchingNextPage} hasMore={hasNextPage} posts={posts.pages} loader={<LoadSpinner/>} />
+                <PostInifinityList noData={<NoResults></NoResults>} fetchNextPage={fetchNextPage} isLoading={isFetchingNextPage} hasMore={hasNextPage} posts={posts?.pages || []} loader={<LoadSpinner/>} />
             </PageSection>
         </>
+    )
+}
+
+const NoResults: FC = () => {
+    return (
+        <div className="flex flex-col items-center gap-5 mt-36">
+            <LuSearchX className="text-6xl" />
+            <p className="text-center text-xl">No results found</p>
+        </div>
     )
 }
 

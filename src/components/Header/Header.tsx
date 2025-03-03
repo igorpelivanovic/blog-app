@@ -7,15 +7,17 @@ import { useGetAuthUser } from "../../query/auth/user"
 
 const Header = () => {
 
-    const { data: userData } = useGetAuthUser()
+    const { data: userData, isError } = useGetAuthUser()
 
     return(
         <header>
-            <Link to="/">
-                <img src="./src/assets/logo.svg" className="h-12" alt="logo_blog_app" />
+            <Link to="/" className="order-1">
+                <img src="./src/assets/logo.svg" className="md:h-12 h-10" alt="logo_blog_app" />
             </Link>
             <SearchContainer />
-            {userData ? <UserPreview /> : <AuthBtns />}
+            <div className="order-2 sm:order-3">
+                {userData && !isError ? <UserPreview /> : <AuthBtns />}
+            </div>
         </header>
     )
 }

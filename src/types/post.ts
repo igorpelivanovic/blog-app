@@ -1,3 +1,6 @@
+import { IUser } from "./user"
+import { Optional } from "./utils"
+
 export type Post = {
     id: number,
     title: string,
@@ -6,6 +9,7 @@ export type Post = {
     reactions: PostReaction,
     views: number,
     userId: number,
+    image?: string | null
 }
 
 export type DeletedPost = Post & {
@@ -17,11 +21,13 @@ export type PostReaction = Record<'likes' | 'dislikes', number>
 
 export type PreviewPost = Omit<Post, 'userId' | 'body'>
 
-export type PostWithAuthor = Post & {
-    username: string
-}
+export interface IPostWithAuthor extends Post, Omit<IUser, 'id'>{}
 
 export type NewPost = Pick<Post, 'title' | 'body' | 'tags' | 'userId'> & {
+    image?: File
+}
+
+export type UpdatePost = Omit<Optional<Post>, 'id' | 'userId' | 'views' | 'image' > & Pick<Post, 'id'> & {
     image?: File
 }
 

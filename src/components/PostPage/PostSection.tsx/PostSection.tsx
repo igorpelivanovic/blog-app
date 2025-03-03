@@ -15,11 +15,19 @@ const PostSection: React.FunctionComponent = () => {
 
     if( !postData ) return null
 
+
+
     return (
         <section>
-            <PostHeaderImage imgUrlParam={postData.id} />
-            <PostHeaderData postData={postData} />
-            <PostBodyContent postContent={ postData.body } />
+            {postData && (
+                <>
+                                <PostHeaderImage img={postData.image} imgUrlParam={postData.id} />
+                <PostHeaderData postData={postData} />
+                <PostBodyContent postContent={ postData.body } />
+                </>
+
+            )}
+            
         </section>
     )
 }

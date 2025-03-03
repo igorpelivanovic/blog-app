@@ -25,10 +25,12 @@ authAxios.interceptors.request.use((request)=>{
 export { authAxios }
 
 
-const addAuthorizationHeader = (request: InternalAxiosRequestConfig<any>) => {
-    request.headers['Authorization'] = `Bearer ${AuthTokenService.getToken('accessToken')}`
+const addAuthorizationHeader = (request: InternalAxiosRequestConfig<unknown>) => {
+    request.headers['Authorization'] = `Bearer ${AuthTokenService.getToken('accessToken')} `
     return request
 }
+
+/* ${AuthTokenService.getToken('accessToken')} */
 
   
 

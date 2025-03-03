@@ -19,18 +19,18 @@ const defaultStylePseudoElement = {
 }
 
 
-const pluginBorderImage = plugin(function({ addUtilities}){
+const pluginBorderImage = plugin(function({ addUtilities, theme}){
     addUtilities({
       '.border-image-fill-gradient-before': { 
         '&::before': {
             ...defaultStylePseudoElement,
-            borderImageSource: "linear-gradient(0deg, rgba(12,0,255,1) 0%, rgba(21,0,255,0.3337710084033614) 0%, rgba(37,0,255,0) 31%, rgba(46,0,255,0) 100%)",
+            borderImageSource: `linear-gradient(0deg,  rgba(37,0,255,0) 31%, rgba(46,0,255,0) 100%)`,
         }
       },
       '.border-image-fill-gradient-before-hover': { 
         '&::before': {
             ...defaultStylePseudoElement,
-            borderImageSource: "linear-gradient(0deg, rgba(12,0,255,1) 0%, rgba(21,0,255,0.3337710084033614) 33%, rgba(37,0,255,0) 52%, rgba(46,0,255,0) 100%)",
+            borderImageSource: `linear-gradient(0deg, ${theme('colors.stone.400')}, ${theme('colors.secondary-transparent-20')} 33%, rgba(37,0,255,0) 52%, rgba(46,0,255,0) 100%)`,
         }
       },
       '.border-image-fill-gradient': {

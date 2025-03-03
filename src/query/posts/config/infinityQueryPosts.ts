@@ -22,8 +22,8 @@ const configOptions: ConfigOptions = {
     select: (data)=>{
         const dataPost = data.pages.flatMap((curentPage)=>curentPage.posts)
         return {
-            pageParams: data.pageParams,
-            pages: dataPost
+            pages: dataPost,
+            pageParams: data.pageParams
         }
     },
     cacheTime: 0,

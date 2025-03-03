@@ -3,8 +3,9 @@ import { useGetPostById } from "../query/posts/useGetPostByIdQuery";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetAuthUser } from "../query/auth/user";
 import { generatePostImgUrlFromID } from "../utils/generateImgUrl";
-import ManagePostForm, { DefaultValueFormProps, ManagePostFormSubmitData } from "../components/forms/ManagePostForm";
+import ManagePostForm, { ManageFormT } from "../components/forms/ManagePostForm";
 import ManagePostContainer from "./ManagePost";
+import { useUpdatePost } from "../query/posts/useUpdatePost";
 
 const title: string = 'edit post'
 
@@ -15,6 +16,8 @@ const EditPostPage: FC = ()=>{
     const navigate = useNavigate()
 
     if( !postId ) return
+
+    const { mutateAsync } = useUpdatePost()
 
     const { data: postData } = useGetPostById(Number(postId))
 
@@ -34,15 +37,18 @@ const EditPostPage: FC = ()=>{
         'height': 550
     }), [userData?.id])
 
-    const defaultValueForm: DefaultValueFormProps  = {...postData, image: generateUrl}
 
-    const onSubmitMenageForm = (data: ManagePostFormSubmitData) => {
-/*         console.log(data)
- */    }
+    const onSubmitMenageForm = async(data: Partial<ManageFormT>) => {
+        try{
+            await mutateAsync( (({image, ...postData})=>({id: parseInt(postId), image: image?.[0], ...postData}))(data))
+            navigate(`/post/${postId}`, {replace: true})
+        }catch(e){
+        }
+    }
 
     return(
         <ManagePostContainer titlePage={title}>
-            <ManagePostForm defaultValue={defaultValueForm} onSubmit={onSubmitMenageForm}></ManagePostForm>
+            <ManagePostForm defaultValue={postData} onlyDirtySubmit={true} onSubmit={onSubmitMenageForm} submitBtnLabel="edit"></ManagePostForm>
         </ManagePostContainer >
     )
 }

@@ -6,8 +6,7 @@ const useGetUserById = (userId: number) => {
     return useQuery({
         queryKey: [ USERS, userId ],
         queryFn: () => fetchUsernameByUserId(userId),
-        select: (response) => response.data
-    })
+        select: (response) => response.data})
 }
 
 export { useGetUserById }

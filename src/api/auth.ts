@@ -1,45 +1,47 @@
 import { authAxios } from "../axios/auth"
-import { AxiosError, AxiosResponse } from "axios"
-import { HttpResponseRefreshAuthToken, HttpResposenseAuthUser } from "../types/httpResponse"
+import { AxiosResponse } from "axios"
+import { HttpResponseRefreshAuthToken, HttpResposenseAuthUser, HttpResposenseLoginUser } from "../types/httpResponse"
 import AuthTokenService from "../services/authToken.service"
+import { ERROR_API_MESSAGES, ErrorApiMesages } from "../constants/errorApiMessage"
+import { handleHttpRequest } from "../utils/handleHttpRequest"
 
-export type SingInUserProps = Record<'username' | 'password', string>
+export type LoginUserProps = Record<'username' | 'password', string>
 
-const errorSingInMessage = new Map<number, string>([
-    [400, 'username or password is incorect']
-])
+const errorLogInMessage: ErrorApiMesages = new Map([...ERROR_API_MESSAGES, [400, 'username or password is incorect']])
 
-const singInUser = async (userData: SingInUserProps):Promise<AxiosResponse<HttpResposenseAuthUser, AxiosError>> => {
-    try{
-        return await authAxios.post<HttpResposenseAuthUser>('/login', userData, {
-            params: {
-                auth: false
-            }
-        })
-    }catch(e){
-        throw hadnleErrorSingIn(e)
-    }
+
+const loginUser = async(userData: LoginUserProps):Promise<AxiosResponse<HttpResposenseLoginUser>> => {
+    return await handleHttpRequest<HttpResposenseLoginUser, LoginUserProps>({
+        config: {
+            url: `${import.meta.env.VITE_AUTH_URL}/login`,
+            method: 'post',
+            data: userData
+        },
+        errorMessages: errorLogInMessage
+    })
 }
 
-const hadnleErrorSingIn = (e: unknown): unknown=>{
-    if(e instanceof AxiosError && e.status){
-        e.message = errorSingInMessage.get(e.status) || e.message
-    }
-    return e
-} 
 
 
-const fetchAuthUser = (): Promise<AxiosResponse<HttpResposenseAuthUser, AxiosError>> => {
-    return authAxios.get<HttpResposenseAuthUser>('/me')
-}
-
-const refreshAuthToken = (): Promise<AxiosResponse<HttpResponseRefreshAuthToken, AxiosError>> => {
-    return authAxios.post<HttpResponseRefreshAuthToken>('/refresh', {
-        refreshToken: AuthTokenService.getToken('refreshToken')
-    }, {
-        params: {
-            auth: false
+const fetchAuthUser = async(): Promise<AxiosResponse<HttpResposenseAuthUser>> => {
+    return await handleHttpRequest<HttpResposenseAuthUser>({
+        axios: authAxios,
+        config: {
+            url: '/me'
         }
+    })
+}
+
+const refreshAuthToken = async(): Promise<AxiosResponse<HttpResponseRefreshAuthToken>> => {
+    return await handleHttpRequest<HttpResponseRefreshAuthToken>({
+        config: {
+            url: `${import.meta.env.VITE_AUTH_URL}/refresh`,
+            method: 'post',
+            data: {
+                refreshToken: AuthTokenService.getToken('refreshToken')
+            }
+        },
+        errorMessages: new Map([...ERROR_API_MESSAGES, [403, 'something is wrong, please login again']])
     })
 }
 
@@ -47,4 +49,4 @@ const refreshAuthToken = (): Promise<AxiosResponse<HttpResponseRefreshAuthToken,
 
 
 
-export { singInUser, fetchAuthUser, refreshAuthToken }
+export { loginUser, fetchAuthUser, refreshAuthToken }

@@ -5,7 +5,6 @@ import MoreFromTagPostSection from "../components/PostPage/RecomendedPostsSectio
 
 const PostPage: React.FunctionComponent = () => {
     return(
-        
         <div className="post-page-container space-y-16">
             <PostSection />
             <CommentsSection />

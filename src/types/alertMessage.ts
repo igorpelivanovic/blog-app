@@ -1,0 +1,1 @@
+export type AlertMessageServerActionKeys = 'add' | 'update' | 'delete'
