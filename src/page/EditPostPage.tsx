@@ -1,8 +1,7 @@
-import { FC, useEffect, useMemo } from "react";
+import { FC, useEffect } from "react";
 import { useGetPostById } from "../query/posts/useGetPostByIdQuery";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetAuthUser } from "../query/auth/user";
-import { generatePostImgUrlFromID } from "../utils/generateImgUrl";
 import ManagePostForm, { ManageFormT } from "../components/forms/ManagePostForm";
 import ManagePostContainer from "./ManagePost";
 import { useUpdatePost } from "../query/posts/useUpdatePost";
@@ -31,12 +30,6 @@ const EditPostPage: FC = ()=>{
             return
         }
     }, [postData.userId, userData?.id])
-
-    const generateUrl = useMemo(()=>generatePostImgUrlFromID(userData.id, {
-        'width': 800,
-        'height': 550
-    }), [userData?.id])
-
 
     const onSubmitMenageForm = async(data: Partial<ManageFormT>) => {
         try{

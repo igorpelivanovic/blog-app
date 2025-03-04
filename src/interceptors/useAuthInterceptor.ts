@@ -4,6 +4,7 @@ import axios, { AxiosError, AxiosResponse } from "axios"
 import { authAxios } from "../axios/auth"
 import { HttpResponseRefreshAuthToken } from "../types/httpResponse"
 import { useLoginAgainWithAlert } from "../hooks/useLoginAgainWithAlert"
+import { AlertType } from "../state/alertsStore"
 
 const useAuthInterception = () => {
     const { mutateAsync } = useRefreshToken()
@@ -20,6 +21,7 @@ const useAuthInterception = () => {
             if(error.status === 403){
                 loginAgainWithAlert({
                     text: error.message,
+                    type: AlertType.error
                 })
                 return
             }
@@ -33,6 +35,7 @@ const useAuthInterception = () => {
                 }catch(e){
                     if(axios.isAxiosError(e)){
                         loginAgainWithAlert({
+                            type: AlertType.error,
                             text: e.message,
                         })
                     }

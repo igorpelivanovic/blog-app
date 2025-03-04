@@ -4,8 +4,6 @@ import { useAuthModalStore } from "../../state/authPopUpStore";
 import LogInFormContainer from "./LogInFormContainer";
 import RegisterFormContainer from "./RegisterFormContainer";
 import { AnimatePresence } from "framer-motion";
-import { ErrorBoundary } from "react-error-boundary";
-import { QueryErrorResetBoundary } from "react-query";
 
 const AuthModal: FC = () => {
 

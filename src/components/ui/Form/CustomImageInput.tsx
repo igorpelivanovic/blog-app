@@ -1,7 +1,6 @@
-import { ChangeEventHandler, ComponentProps, PropsWithChildren, ReactNode, useEffect, useRef, useState } from "react"
+import { ChangeEventHandler, ComponentProps, ReactNode, useEffect, useRef, useState } from "react"
 import { FieldPath, FieldValues, useFormContext } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
-import noUserImg from '../../../assets/images/dummy_image.png';
 import FormErrorMsg from "./FormErrorMsg";
 import classNames from "classnames";
 
@@ -26,7 +25,7 @@ type CustomImageInputProps<T extends FieldValues> = Omit<ComponentProps<'input'>
 
 const defaultStyleContainer: string = "mb-8 flex gap-4 relative"
 
-const CustomImageInput = <T extends FieldValues = any,> ({children, acceptFiles, className, formId = "", name, label, initImg, placeholder = noUserImg}: CustomImageInputProps<T>) => {
+const CustomImageInput = <T extends FieldValues = any,> ({children, acceptFiles, className, formId = "", name, initImg}: CustomImageInputProps<T>) => {
 
     const { register, resetField, getValues, formState: { errors, isDirty }, setValue } = useFormContext<T>()
     const [ fileUrl, setFileUrl] = useState<string | undefined>( initImg )

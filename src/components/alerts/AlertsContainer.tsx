@@ -1,4 +1,4 @@
-import { AlertType, useAlertStore } from "../../state/alertsStore"
+import { useAlertStore } from "../../state/alertsStore"
 import Alert from "./Alert"
 
 const AlertsContainer = () => {

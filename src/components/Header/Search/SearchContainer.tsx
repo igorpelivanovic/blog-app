@@ -8,7 +8,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { useOutsideClick } from "../../../hooks/useOutsideClick"
 import { useSearchValue } from "../../../hooks/useSearchFromValue"
 import SearchForm from "./SearchForm"
-import { SearchPopUpContext, useSearchPopUpContext } from "../../../context/searchPopUpStore"
+import { SearchPopUpContext } from "../../../context/searchPopUpStore"
 
 type FormSearch = z.infer<typeof SearchFormSchema>
 

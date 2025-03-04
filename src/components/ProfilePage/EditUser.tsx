@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { IoSettings } from "react-icons/io5";
 import Modal from "../Modal/Modal";
-import { isDirty, z } from "zod";
+import { z } from "zod";
 import CheckBox from "../ui/Form/CheckBox";
 import FormContainer from "../ui/Form/FormContainer";
 import CustomImageInput from "../ui/Form/CustomImageInput";

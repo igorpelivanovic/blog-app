@@ -12,8 +12,8 @@ import LoadingIndicatorAuthForm from "../Auth/LoadingIndicatorAuthForm"
 type LoginFormType = z.infer<typeof LoginFormSchema>
 
 const DEFAULT_FORM_DATA: LoginFormType = {
-    username: "emilys",
-    password: "emilyspass"
+    username: "",
+    password: ""
 }
 
 const LoginForm = () => {
@@ -26,8 +26,6 @@ const LoginForm = () => {
 
         mutateAsync(data).then(_=>{
             hide()
-        }).catch((e)=>{
-
         }).finally(()=>{
             setClickOutSide(true)
         })

@@ -4,14 +4,11 @@ import { AUTH_USER } from "../../constants/queryKey"
 import AuthTokenService from "../../services/authToken.service"
 import { HttpResposenseLoginUser } from "../../types/httpResponse"
 import { loginUser, LoginUserProps } from "../../api/auth"
-import { useAlertStore } from "../../state/alertsStore"
 
 
 const useLogin = () => {
     
     const queryClient = useQueryClient()
-
-    const add = useAlertStore((state)=>state.addAlert)
 
     return useMutation<AxiosResponse<HttpResposenseLoginUser>, AxiosError, LoginUserProps, unknown>({
         mutationFn: (userData: LoginUserProps)=>loginUser(userData),
